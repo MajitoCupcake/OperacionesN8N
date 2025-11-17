@@ -1,5 +1,5 @@
 // ⚠️ PEGA AQUÍ TU URL DEL WEBHOOK DE N8N
-const WEBHOOK_URL = "https://majos.app.n8n.cloud/webhook/calculadora"; 
+const WEBHOOK_URL = "https://majos.app.n8n.cloud/webhook-test/calculadora"; 
 
 async function enviarDatos(event) {
     event.preventDefault(); // Evita que la página se recargue sola
