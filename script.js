@@ -1,66 +1,54 @@
-// ⚠️ PEGA AQUÍ TU URL DEL WEBHOOK DE N8N
 const WEBHOOK_URL = "https://majos.app.n8n.cloud/webhook/calculadora"; 
 
 async function enviarDatos(event) {
-    event.preventDefault(); // Evita que la página se recargue sola
+    event.preventDefault();
 
-    // Elementos del DOM
     const inputTexto = document.getElementById('operacionInput').value;
     const btn = document.getElementById('btnEnviar');
     const loader = document.getElementById('loading');
-    const alertBox = document.getElementById('resultadoAlert');
+    const resultCard = document.getElementById('resultadoCard');
 
-    // UI: Mostrar carga y bloquear botón
+    // UI: Mostrar carga
     btn.disabled = true;
     loader.classList.remove('d-none');
-    alertBox.classList.add('d-none');
+    resultCard.classList.add('d-none');
 
     try {
-        // 1. Obtener la IP pública del cliente (API gratuita)
+        // 1. Obtener IP
         const ipResponse = await fetch('https://api.ipify.org?format=json');
         const ipData = await ipResponse.json();
-        const userIp = ipData.ip;
 
-        console.log("IP Detectada:", userIp);
-
-        // 2. Preparar datos para n8n
-        const datos = {
-            operacion: inputTexto,
-            ip: userIp
-        };
-
-        // 3. Enviar al Webhook de n8n
+        // 2. Enviar a n8n
         const response = await fetch(WEBHOOK_URL, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(datos)
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                operacion: inputTexto,
+                ip: ipData.ip
+            })
         });
 
-        // 4. Manejar respuesta
         if (response.ok) {
-            // Si configuraste n8n para responder con el resultado:
-            const respuestaJson = await response.json();
-            
-            // Ajusta esto según lo que responda tu último nodo en n8n
-            // Si tu último nodo responde { "mensaje": "Guardado OK" } o el resultado directo
-            const textoResultado = JSON.stringify(respuestaJson); 
+            const data = await response.json();
+            console.log("Respuesta del Servidor:", data);
 
-            alertBox.className = "alert alert-success mt-4 text-center fw-bold";
-            alertBox.innerHTML = `✅ Éxito: ${textoResultado}`;
+            // 3. Mostrar los datos en el HTML
+            // Nota: Ajustamos esto según lo que devuelve tu Python
+            document.getElementById('txtOperacion').innerText = data.operacion_guardada || inputTexto;
+            document.getElementById('txtResultado').innerText = data.resultado_final || "Calculado";
+            document.getElementById('txtIP').innerText = data.ip_cliente || ipData.ip;
+
+            // Mostrar tarjeta
+            resultCard.classList.remove('d-none');
         } else {
-            throw new Error("Error en la respuesta de n8n");
+            alert("Error en n8n o AWS");
         }
 
     } catch (error) {
         console.error(error);
-        alertBox.className = "alert alert-danger mt-4 text-center";
-        alertBox.innerHTML = `❌ Error: No se pudo conectar con el Workflow.`;
+        alert("No se pudo conectar.");
     } finally {
-        // UI: Restaurar estado
         btn.disabled = false;
         loader.classList.add('d-none');
-        alertBox.classList.remove('d-none');
     }
 }
