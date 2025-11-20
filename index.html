@@ -14,7 +14,7 @@
             background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
             min-height: 100vh;
             display: flex;
-            flex-direction: column; /* Cambio clave: organiza elementos en columna */
+            flex-direction: column;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
@@ -27,7 +27,7 @@
 
         /* Contenedor principal para centrar la carta */
         .main-content {
-            flex: 1; /* Ocupa el espacio disponible entre nav y footer */
+            flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -72,11 +72,11 @@
             background-color: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(10px);
             padding: 15px 0;
-            margin-top: auto; /* Empuja el footer al final si el contenido es corto */
+            margin-top: auto;
         }
         
         .social-link {
-            color: #0077b5; /* Azul LinkedIn */
+            color: #0077b5;
             text-decoration: none;
             font-weight: bold;
             transition: color 0.3s;
@@ -138,7 +138,7 @@
                         <span id="txtResultado" class="fs-4 fw-bold text-primary">--</span>
                     </div>
                     <div class="mt-3 p-2 bg-white rounded shadow-sm">
-                        <small class="text-muted d-block">📍 IP Cliente: <span id="txtIP">192.168.1.X</span></small>
+                        <small class="text-muted d-block">📍 IP Cliente: <span id="txtIP">192.168.1.10</span></small>
                     </div>
                 </div>
             </div>
@@ -157,10 +157,10 @@
         </div>
     </footer>
 
-    <!-- Lógica JavaScript embebida -->
+    <!-- Lógica JavaScript -->
     <script>
         function enviarDatos(event) {
-            event.preventDefault(); // Evita recargar la página
+            event.preventDefault();
 
             const operacionInput = document.getElementById('operacionInput').value;
             const btnEnviar = document.getElementById('btnEnviar');
@@ -169,33 +169,51 @@
             const txtOperacion = document.getElementById('txtOperacion');
             const txtResultado = document.getElementById('txtResultado');
 
-            // Mostrar loading y ocultar resultado previo
+            // Mostrar loading
             btnEnviar.disabled = true;
             loadingDiv.classList.remove('d-none');
             resultadoCard.classList.add('d-none');
 
-            // SIMULACIÓN DE LLAMADA A API (Reemplaza esto con tu fetch real)
             setTimeout(() => {
-                // Ocultar loading
                 loadingDiv.classList.add('d-none');
                 btnEnviar.disabled = false;
 
-                // Mostrar resultado simulado
                 txtOperacion.innerText = operacionInput;
                 
-                // Lógica simple de simulación (solo para ejemplo visual)
                 try {
-                    // Nota: Esto es inseguro para producción (eval), usa tu backend real
-                    // Esto es solo para que veas que la UI funciona
-                    const resultadoSimulado = "Resultado desde AWS"; 
-                    txtResultado.innerText = resultadoSimulado;
+                    // 1. Normalizar el texto (cambiar 'mas' por '+', 'x' por '*', etc.)
+                    let expresion = operacionInput.toLowerCase();
+                    expresion = expresion.replace(/mas/g, '+')
+                                         .replace(/más/g, '+')
+                                         .replace(/menos/g, '-')
+                                         .replace(/por/g, '*')
+                                         .replace(/x/g, '*')
+                                         .replace(/entre/g, '/');
+
+                    // 2. Limpiar caracteres peligrosos (solo permitir números y operadores)
+                    // Esto previene inyección de código malicioso básico
+                    const expresionLimpia = expresion.replace(/[^0-9\+\-\*\/\.\(\)]/g, '');
+
+                    // 3. Evaluar la operación matemática
+                    if (!expresionLimpia) throw new Error("Entrada vacía");
+                    
+                    // Usamos Function en lugar de eval directo por un poco más de seguridad
+                    const resultado = new Function('return ' + expresionLimpia)();
+                    
+                    txtResultado.innerText = resultado;
+                    txtResultado.classList.remove('text-danger');
+                    txtResultado.classList.add('text-primary');
+
                 } catch (e) {
-                    txtResultado.innerText = "Error";
+                    console.error(e);
+                    txtResultado.innerText = "Error en la operación";
+                    txtResultado.classList.remove('text-primary');
+                    txtResultado.classList.add('text-danger');
                 }
 
                 resultadoCard.classList.remove('d-none');
                 
-            }, 2000); // Simula 2 segundos de espera
+            }); // Simulamos un pequeño retardo de red
         }
     </script>
 </body>
