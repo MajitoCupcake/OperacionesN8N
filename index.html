@@ -1,220 +1,218 @@
 <!DOCTYPE html>
+
 <html lang="es">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Calculadora IA - AWS</title>
-    <!-- Bootstrap CSS -->
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- FontAwesome para iconos (LinkedIn, etc) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <style>
+
         body {
+
             background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
 
-        /* Estilos del Navbar */
-        .navbar {
-            background-color: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
+            height: 100vh;
 
-        /* Contenedor principal para centrar la carta */
-        .main-content {
-            flex: 1;
             display: flex;
+
             align-items: center;
+
             justify-content: center;
-            padding: 20px;
+
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
         }
 
         .card {
+
             border: none;
+
             border-radius: 25px;
+
             background-color: rgba(255, 255, 255, 0.95);
+
             box-shadow: 0 10px 30px rgba(106, 13, 173, 0.2);
-            width: 100%;
-            max-width: 500px;
+
         }
 
         .btn-custom {
+
             background: linear-gradient(to right, #6a11cb 0%, #2575fc 100%);
+
             color: white;
+
             border: none;
+
             border-radius: 50px;
+
             padding: 10px 20px;
+
             font-weight: bold;
+
             transition: transform 0.2s;
+
         }
 
         .btn-custom:hover {
+
             transform: scale(1.05);
-            color: white;
+
         }
 
         .result-box {
+
             background-color: #f3e5f5;
+
             border-left: 5px solid #8e24aa;
+
             border-radius: 10px;
+
             padding: 15px;
+
         }
 
         h2 { color: #4a148c; }
 
-        /* Estilos del Footer */
-        footer {
-            background-color: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
-            padding: 15px 0;
-            margin-top: auto;
-        }
-        
-        .social-link {
-            color: #0077b5;
-            text-decoration: none;
-            font-weight: bold;
-            transition: color 0.3s;
-        }
-        
-        .social-link:hover {
-            color: #004182;
-        }
     </style>
+
 </head>
+
 <body>
 
-    <!-- Navbar -->
+
+
+    <div class="container">
+
+        <div class="row justify-content-center">
+
+            <div class="col-md-5">
+
+                <div class="card p-5">
+
+                    <div class="text-center mb-4">
+
+                        <h2>🧮 Calculadora Cloud</h2>
+
+                        <p class="text-muted">Procesada con OpenAI y AWS RDS</p>
+
+                    </div>
+<!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light">
         <div class="container">
             <a class="navbar-brand fw-bold text-primary" href="#">
                 <i class="fas fa-cloud me-2"></i>Calculadora Cloud
             </a>
+            <div class="d-flex">
+                <a href="https://www.linkedin.com/in/mary-jose-hernández-fernández" target="_blank" class="btn btn-outline-primary btn-sm rounded-pill">
+                    <i class="fab fa-linkedin me-1"></i> Conectar
+                </a>
+            </div>
         </div>
     </nav>
 
-    <!-- Contenedor Principal (Calculadora) -->
-    <div class="main-content">
-        <div class="card p-4 p-md-5">
-            <div class="text-center mb-4">
-                <h2>🧮 Calculadora Cloud</h2>
-                <p class="text-muted">Procesada con OpenAI y AWS RDS</p>
-            </div>
+                    <form id="calcForm" onsubmit="enviarDatos(event)">
 
-            <form id="calcForm" onsubmit="enviarDatos(event)">
-                <div class="mb-4">
-                    <label class="form-label fw-bold text-secondary">Operación Aritmética</label>
-                    <input type="text" class="form-control form-control-lg" id="operacionInput" 
-                           placeholder="Ej: 20 mas 101" required>
+                        <div class="mb-4">
+
+                            <label class="form-label fw-bold text-secondary">Operación Aritmética</label>
+
+                            <input type="text" class="form-control form-control-lg" id="operacionInput"
+
+                                   placeholder="Ej: 20 mas 101" required>
+
+                        </div>
+
+
+
+                        <div class="d-grid">
+
+                            <button type="submit" class="btn btn-custom btn-lg" id="btnEnviar">
+
+                                Calcular
+
+                            </button>
+
+                        </div>
+
+                    </form>
+
+
+
+                    <div id="loading" class="text-center mt-4 d-none">
+
+                        <div class="spinner-border text-primary" role="status"></div>
+
+                        <p class="small text-muted mt-2">Conectando con n8n...</p>
+
+                    </div>
+
+
+
+                    <div id="resultadoCard" class="mt-4 d-none">
+
+                        <div class="result-box">
+
+                            <h5 class="fw-bold text-success">✅ Resultado Exitoso</h5>
+
+                            <hr>
+
+                            <div class="d-flex justify-content-between">
+
+                                <span class="fw-bold text-muted">Operación:</span>
+
+                                <span id="txtOperacion" class="text-dark">--</span>
+
+                            </div>
+
+                            <div class="d-flex justify-content-between mt-2">
+
+                                <span class="fw-bold text-muted">Resultado:</span>
+
+                                <span id="txtResultado" class="fs-4 fw-bold text-primary">--</span>
+
+                            </div>
+
+                            <div class="mt-3 p-2 bg-white rounded shadow-sm">
+
+                                <small class="text-muted d-block">📍 IP Cliente: <span id="txtIP"></span></small>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
                 </div>
 
-                <div class="d-grid">
-                    <button type="submit" class="btn btn-custom btn-lg" id="btnEnviar">
-                        Calcular
-                    </button>
-                </div>
-            </form>
-
-            <div id="loading" class="text-center mt-4 d-none">
-                <div class="spinner-border text-primary" role="status"></div>
-                <p class="small text-muted mt-2">Conectando con n8n...</p>
             </div>
 
-            <div id="resultadoCard" class="mt-4 d-none">
-                <div class="result-box">
-                    <h5 class="fw-bold text-success">✅ Resultado Exitoso</h5>
-                    <hr>
-                    <div class="d-flex justify-content-between">
-                        <span class="fw-bold text-muted">Operación:</span>
-                        <span id="txtOperacion" class="text-dark">--</span>
-                    </div>
-                    <div class="d-flex justify-content-between mt-2">
-                        <span class="fw-bold text-muted">Resultado:</span>
-                        <span id="txtResultado" class="fs-4 fw-bold text-primary">--</span>
-                    </div>
-                    <div class="mt-3 p-2 bg-white rounded shadow-sm">
-                        <small class="text-muted d-block">📍 IP Cliente: <span id="txtIP">192.168.1.10</span></small>
-                    </div>
-                </div>
-            </div>
         </div>
+
     </div>
 
-    <!-- Footer -->
+
+<!-- Footer -->
     <footer>
         <div class="container text-center">
-            <p class="mb-1 text-muted">Desarrollado por <strong>Mary Jose Hernández Fernández</strong></p>
+            <p class="mb-1 text-muted">Desarrollado por <strong>[TU NOMBRE AQUÍ]</strong></p>
             <small>
-                <a href="https://www.linkedin.com/in/mary-jose-hernández-fernández" target="_blank" class="social-link">
+                <a href="https://www.linkedin.com/in/tu-usuario" target="_blank" class="social-link">
                     <i class="fab fa-linkedin"></i> Ver perfil en LinkedIn
                 </a>
             </small>
         </div>
     </footer>
+    <script src="script.js"></script>
 
-    <!-- Lógica JavaScript -->
-    <script>
-        function enviarDatos(event) {
-            event.preventDefault();
-
-            const operacionInput = document.getElementById('operacionInput').value;
-            const btnEnviar = document.getElementById('btnEnviar');
-            const loadingDiv = document.getElementById('loading');
-            const resultadoCard = document.getElementById('resultadoCard');
-            const txtOperacion = document.getElementById('txtOperacion');
-            const txtResultado = document.getElementById('txtResultado');
-
-            // Mostrar loading
-            btnEnviar.disabled = true;
-            loadingDiv.classList.remove('d-none');
-            resultadoCard.classList.add('d-none');
-
-            setTimeout(() => {
-                loadingDiv.classList.add('d-none');
-                btnEnviar.disabled = false;
-
-                txtOperacion.innerText = operacionInput;
-                
-                try {
-                    // 1. Normalizar el texto (cambiar 'mas' por '+', 'x' por '*', etc.)
-                    let expresion = operacionInput.toLowerCase();
-                    expresion = expresion.replace(/mas/g, '+')
-                                         .replace(/más/g, '+')
-                                         .replace(/menos/g, '-')
-                                         .replace(/por/g, '*')
-                                         .replace(/x/g, '*')
-                                         .replace(/entre/g, '/');
-
-                    // 2. Limpiar caracteres peligrosos (solo permitir números y operadores)
-                    // Esto previene inyección de código malicioso básico
-                    const expresionLimpia = expresion.replace(/[^0-9\+\-\*\/\.\(\)]/g, '');
-
-                    // 3. Evaluar la operación matemática
-                    if (!expresionLimpia) throw new Error("Entrada vacía");
-                    
-                    // Usamos Function en lugar de eval directo por un poco más de seguridad
-                    const resultado = new Function('return ' + expresionLimpia)();
-                    
-                    txtResultado.innerText = resultado;
-                    txtResultado.classList.remove('text-danger');
-                    txtResultado.classList.add('text-primary');
-
-                } catch (e) {
-                    console.error(e);
-                    txtResultado.innerText = "Error en la operación";
-                    txtResultado.classList.remove('text-primary');
-                    txtResultado.classList.add('text-danger');
-                }
-
-                resultadoCard.classList.remove('d-none');
-                
-            }); // Simulamos un pequeño retardo de red
-        }
-    </script>
 </body>
+
 </html>
